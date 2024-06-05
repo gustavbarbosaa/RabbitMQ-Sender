@@ -1,15 +1,14 @@
 package com.sendRabbitMQ.RabbitMQ.controllers;
 
-import com.sendRabbitMQ.RabbitMQ.configs.RabbitMQConfig;
 import com.sendRabbitMQ.RabbitMQ.models.UserModel;
 import com.sendRabbitMQ.RabbitMQ.repositories.UserRepository;
 import com.sendRabbitMQ.RabbitMQ.services.UserService;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/users")
@@ -29,6 +28,11 @@ public class UserController {
     @GetMapping
     public ResponseEntity<List<UserModel>> getAllUsers() throws Exception {
         return ResponseEntity.ok().body(userRepository.findAll());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Optional<UserModel>> getUser(@PathVariable Long id) throws Exception {
+        return ResponseEntity.ok().body(userRepository.findById(id));
     }
 
     @PostMapping

@@ -30,44 +30,36 @@ public class UserService {
 
     public UserModel registerUser(UserModel userModel) {
         userModel.setPassword(bCryptPasswordEncoder.encode(userModel.getPassword()));
-        System.out.println(rabbitMQConfig.getRegisterExchangeName());
-        System.out.println(rabbitMQConfig.getRegisterQueueName());
-        System.out.println(userModel.getEmail());
         rabbitTemplate.convertAndSend(rabbitMQConfig.getRegisterExchangeName(), rabbitMQConfig.getRegisterRoutingKey(), userModel.getEmail());
         return userRepository.save(userModel);
     }
 
     public UserModel editUser(Long id, UserModel userModel) {
-        Optional<UserModel> optionalUser = userRepository.findById(id);
+        Optional<UserModel> userOptional = userRepository.findById(id);
 
-        if (optionalUser.isPresent()) {
-            UserModel existingUser = optionalUser.get();
-
-            if (!Objects.equals(userModel.getName(), existingUser.getName())) {
-                existingUser.setName(userModel.getName());
-            }
-
-            if (!Objects.equals(userModel.getAge(), existingUser.getAge())) {
-                existingUser.setAge(userModel.getAge());
-            }
-
-            if (!Objects.equals(userModel.getEmail(), existingUser.getEmail())) {
-                existingUser.setEmail(userModel.getEmail());
-            }
-
-            if (!Objects.equals(userModel.getPassword(), existingUser.getPassword())) {
-                String password = userModel.getPassword();
-                existingUser.setPassword(bCryptPasswordEncoder.encode(password));
-
-            }
-
-            if (!Objects.equals(userModel.getAddress(), existingUser.getAddress())) {
-                existingUser.setAddress(userModel.getAddress());
-            }
-
-            rabbitTemplate.convertAndSend(rabbitMQConfig.getEditExchangeName(), rabbitMQConfig.getEditRoutingKey(), existingUser);
-            return userRepository.save(existingUser);
+        if (!userOptional.isPresent()) {
+            return null;
         }
-        return null;
+
+        UserModel user = userOptional.get();
+
+        System.out.println(user);
+
+        if (userModel.getName() != null) {
+            user.setName(userModel.getName());
+        }
+        if (userModel.getAge() != null) {
+            user.setAge(userModel.getAge());
+        }
+        if (userModel.getEmail() != null) {
+            user.setEmail(userModel.getEmail());
+        }
+        if (userModel.getPassword() != null) {
+            user.setPassword(userModel.getPassword());
+        }
+        if (userModel.getAddress() != null) {
+            user.setAddress(userModel.getAddress());
+        }
+        return userRepository.save(user);
     }
 }
